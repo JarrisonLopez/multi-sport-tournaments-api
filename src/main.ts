@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { createApp } from "./app";
+import { assertCorsConfiguration } from "./interface/http/cors";
 
 function readPort(value: string | undefined): number {
   if (value === undefined || value.trim() === "") {
@@ -15,9 +16,12 @@ function readPort(value: string | undefined): number {
   return port;
 }
 
+assertCorsConfiguration();
+
+const host = "0.0.0.0";
 const port = readPort(process.env.PORT);
 const app = createApp();
 
-app.listen(port, () => {
-  console.log(`API escuchando en el puerto ${port}`);
+app.listen(port, host, () => {
+  console.log(`API escuchando en ${host}:${port}`);
 });
