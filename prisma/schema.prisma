@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN @map("admin")
+  USER  @map("user")
+
+  @@map("user_role")
+}
+
+enum EstadoTorneo {
+  abierto
+  en_curso
+  proximo
+
+  @@map("estado_torneo")
+}
+
+enum Disponibilidad {
+  fines_de_semana @map("fines-de-semana")
+  noches
+  mananas
+  flexible
+
+  @@map("disponibilidad_inscripcion")
+}
+
+model User {
+  id            String        @id @default(cuid())
+  nombre        String
+  email         String        @unique
+  password      String
+  role          Role
+  inscripciones Inscripcion[]
+
+  @@map("users")
+}
+
+model Torneo {
+  id                  String        @id
+  nombre              String
+  deporte             String
+  estado              EstadoTorneo
+  cupoEquipos         Int?
+  cupoJugadores       Int?
+  sedePrincipalId     String
+  sedeNombre          String
+  ciudad              String
+  cierreInscripciones DateTime      @db.Date
+  descripcion         String
+  inscripciones       Inscripcion[]
+
+  @@map("torneos")
+}
+
+model Inscripcion {
+  id             String         @id @default(cuid())
+  userId         String
+  torneoId       String
+  disponibilidad Disponibilidad
+  mensaje        String
+  createdAt      DateTime       @default(now())
+  user           User           @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  torneo         Torneo         @relation(fields: [torneoId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@unique([userId, torneoId])
+  @@map("inscripciones")
+}
